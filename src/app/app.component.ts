@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
         return;
         
       }
-      window.scrollTo(0, 0)
+      window.scrollTo(0, 0) 
     });
   }
 }
