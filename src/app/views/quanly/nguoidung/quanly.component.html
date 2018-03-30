@@ -1,0 +1,651 @@
+<div class="animated fadeIn">
+  <div class="row">
+    <div class="col-md-12 mb-8">
+      <!-- Nav tabs -->
+      <!-- <tabset (click)="confirmTabSwitch($event,true)" #tabset> -->
+      <tabset #tabset>
+        <tab heading="Danh sách người dùng" id="dsnguoidung" #dsnguoidung>
+          <div class="card">
+            <div class="card-header">
+              Danh sách người dùng - Có tất cả {{totalRows}} kết quả
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="form-group col-lg-6">
+                  <button type="button" (click)="openModalThemMoi(suatemplate,user.mataikhoan)" class="btn btn-success">Thêm mới</button>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-3">
+                  <select class="form-control" (change)="getPage(0)" [(ngModel)]="numRecs">
+                    <option value="20">Hiển thị 20 bản ghi/trang</option>
+                    <option value="50">Hiển thị 50 bản ghi/trang</option>
+                    <option value="100">Hiển thị 100 bản ghi/trang</option>
+                    <option value="200">Hiển thị 200 bản ghi/trang</option>
+                    <option value="500">Hiển thị 500 bản ghi/trang</option>
+                  </select>
+                </div>
+                <div class="col-lg-9">
+                  <nav>
+                    <ul class="pagination" *ngIf="totalRows>0">
+                      <li [ngClass]="{disabled:currentPage === 0 || totalRows ===0}">
+                        <a class="page-link" (click)="getPage(0)">Đầu</a>
+                      </li>
+                      <li [ngClass]="{disabled:currentPage === 0 || totalRows ===0}" class="page-item">
+                        <a class="page-link" (click)="getPage(currentPage-1)">Trước</a>
+                      </li>
+                      <li class="page-item active">
+                        <a class="page-link">{{currentPage+1}}/{{totalPage}}</a>
+                      </li>
+                      <li class="page-item" [ngClass]="{disabled:currentPage === (totalPage-1) || totalRows ===0}">
+                        <a class="page-link" (click)="getPage(currentPage+1)">Tiếp</a>
+                      </li>
+                      <li class="page-item" [ngClass]="{disabled:currentPage === (totalPage-1) || totalRows ===0}">
+                        <a class="page-link" (click)="getPage(totalPage-1)">Cuối</a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+              <div class="row">
+                <div *ngIf="isShowProgressDs==1" class="form-group col-lg-12">
+                  <p-progressBar mode="indeterminate"></p-progressBar>
+                </div>
+              </div>
+              <table class="table table-bordered table-striped table-sm">
+                <thead>
+                  <tr>
+                    <th class="text-center">STT</th>
+                    <th class="text-center">Tài khoản</th>
+                    <th class="text-center">Tên</th>
+                    <th class="text-center">Email</th>
+                    <th class="text-center">Số điện thoại</th>
+                    <th class="text-center">Địa chỉ</th>
+                    <th class="text-center">Lần đăng nhập cuối</th>
+                    <th class="text-center">Ngày tạo</th>
+                    <th class="text-center">Loại tài khoản</th>
+                    <th class="text-center">Mở khóa</th>
+                    <th class="text-center">Chức năng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let user of listUser">
+                    <td class="text-center">{{user.rnum}}</td>
+                    <td title="{{user.taikhoan}}">
+                      <p>{{user.taikhoan}}</p>
+                    </td>
+                    <td title="{{user.tennguoidung}}">
+                      <p>{{user.tennguoidung}}</p>
+                    </td>
+                    <td title="{{user.email}}">
+                      <p>{{user.email}}</p>
+                    </td>
+                    <td title="{{user.sodienthoai}}">
+                      <p>{{user.sodienthoai}}</p>
+                    </td>
+                    <td title="{{user.diachi}}">
+                      <p>{{user.diachi}}</p>
+                    </td>
+                    <td class="text-center">{{user.landangnhapcuoi}}</td>
+                    <td class="text-center">{{user.ngaytao}}</td>
+                    <td class="text-center">
+                      <span *ngIf="user.loaitaikhoan===0">Xem toàn bộ điểm đo</span>
+                      <span *ngIf="user.loaitaikhoan===1">Xem một vài điểm đo</span>
+                    </td>
+                    <td class="text-center">
+                      <button [disabled]="user.khoa==0" type="button" (click)="moKhoa(user.mataikhoan)" class="btn btn-success" *ngIf="user.quantri===0">Mở khóa</button>
+                    </td>
+                    <td class="text-center">
+                      <div class="col-md-12">
+                        <div class="input-group" *ngIf="user.quantri===0">
+                          <div class="input-group-prepend" dropdown>
+                            <button type="button" class="btn btn-primary dropdown-toggle" dropdownToggle>Chức năng
+                              <span class="caret"></span>
+                            </button>
+                            <div class="dropdown-menu" *dropdownMenu>
+                              <a class="dropdown-item" (click)="openModalSua(suatemplate,user.mataikhoan)">Sửa</a>
+                              <a *ngIf="user.loaitaikhoan!==0" (click)="openModalPhanQuyenDiemDo(phanquyendiemdo,user)" class="dropdown-item">Phân quyền điểm đo</a>
+                              <a class="dropdown-item" (click)="openModalPhanQuyenChucNang(phanquyenchucnang,user)">Phân quyền chức năng</a>
+                              <a class="dropdown-item" (click)="openTabLichSuHoatDong(lichsuhoatdong,user)">Xem lịch sử hoạt động</a>
+                              <a class="dropdown-item" (click)="resetMatKhau(user.mataikhoan)">Reset mật khẩu</a>
+                              <a class="dropdown-item" (click)="xoaNguoiDung(user.mataikhoan)">Xóa</a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <nav>
+                <ul class="pagination" *ngIf="totalRows>0">
+                  <li [ngClass]="{disabled:currentPage === 0 || totalRows===0}">
+                    <a class="page-link" (click)="getPage(0)">Đầu</a>
+                  </li>
+                  <li [ngClass]="{disabled:currentPage === 0 || totalRows===0}" class="page-item">
+                    <a class="page-link" (click)="getPage(currentPage-1)">Trước</a>
+                  </li>
+                  <li class="page-item active">
+                    <a class="page-link">{{currentPage+1}}/{{totalPage}}</a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled:currentPage === (totalPage-1) || totalRows===0}">
+                    <a class="page-link" (click)="getPage(currentPage+1)">Tiếp</a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled:currentPage === (totalPage-1) || totalRows===0}">
+                    <a class="page-link" (click)="getPage(totalPage-1)">Cuối</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </tab>
+        <tab heading="Lịch sử hoạt động" id="lshoatdong" #lshoatdong>
+          <div class="row">
+            <div class="form-group col-lg-3">
+              <label>Chọn tài khoản</label>
+              <!-- <ng-autocomplete (selected)="selectedTaiKhoan($event)" [classes]="['']" [group]="listAllTaiKhoan"></ng-autocomplete> -->
+              <select class="form-control" #taiKhoan="ngModel" (change)="getChiTietQuyenByQuyen()" name="taiKhoan" [(ngModel)]="modelLichSuHoatDong.taiKhoan">
+                <option *ngFor="let item of listAllTaiKhoan" [ngValue]="item.taikhoan" [selected]="item.taikhoan==-1">{{item.value}}</option>
+              </select>
+            </div>
+            <div class="form-group col-lg-3">
+              <label>Ngày bắt đầu</label>
+              <p-calendar [(ngModel)]="modelLichSuHoatDong.ngayBatDau" dateFormat="dd/mm/yy"></p-calendar>
+            </div>
+            <div class="form-group col-lg-3">
+              <label>Ngày kết thúc</label>
+              <p-calendar [(ngModel)]="modelLichSuHoatDong.ngayKetThuc" dateFormat="dd/mm/yy"></p-calendar>
+            </div>
+            <div class="form-group col-lg-3">
+              <label>Loại Log</label>
+              <select class="form-control" #loaiLog="ngModel" name="loaiLog" [(ngModel)]="modelLichSuHoatDong.loaiLog">
+                <option *ngFor="let sukien of listAllSuKien" [selected]="sukien.loaisukien==-1" [ngValue]="sukien.loaisukien">{{sukien.tenhienthi}}</option>
+              </select>
+            </div>
+            <div class="form-group col-lg-2">
+              <button [disabled]="modelLichSuHoatDong.taiKhoan==-1 || modelLichSuHoatDong.ngayKetThuc===null || modelLichSuHoatDong.ngayBatDau === null"
+                type="button" (click)="getLichSuHoatDong(0)" class="btn btn-success">Xem</button>
+            </div>
+          </div>
+          <div class="row">
+            <div *ngIf="isShowProgress==1" class="form-group col-lg-12">
+              <p-progressBar mode="indeterminate"></p-progressBar>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-lg-12">
+              <p-messages [(value)]="msgs"></p-messages>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <i class="fa fa-align-justify"></i> Danh sách lịch sử hoạt động
+              <b *ngIf="modelLichSuHoatDong.taiKhoan!=-1"> {{modelLichSuHoatDong.taiKhoan}} </b> - Có tất cả {{totalRowsLS}} kết quả
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-lg-3">
+                  <select class="form-control" (change)="getLichSuHoatDong(0)" [(ngModel)]="numRecsLS">
+                    <option value="20">Hiển thị 20 bản ghi/trang</option>
+                    <option value="50">Hiển thị 50 bản ghi/trang</option>
+                    <option value="100">Hiển thị 100 bản ghi/trang</option>
+                    <option value="200">Hiển thị 200 bản ghi/trang</option>
+                    <option value="500">Hiển thị 500 bản ghi/trang</option>
+                  </select>
+                </div>
+                <div class="col-lg-9">
+                  <nav>
+                    <ul class="pagination" *ngIf="totalRowsLS>0">
+                      <li [ngClass]="{disabled:currentPageLS === 0 || totalRowsLS ===0}">
+                        <a class="page-link" (click)="getLichSuHoatDong(0)">Đầu</a>
+                      </li>
+                      <li [ngClass]="{disabled:currentPageLS === 0 || totalRowsLS ===0}" class="page-item">
+                        <a class="page-link" (click)="getLichSuHoatDong(currentPageLS-1)">Trước</a>
+                      </li>
+                      <li class="page-item active">
+                        <a class="page-link">{{currentPageLS+1}}/{{totalPageLS}}</a>
+                      </li>
+                      <li class="page-item" [ngClass]="{disabled:currentPageLS === (totalPageLS-1) || totalRowsLS ===0}">
+                        <a class="page-link" (click)="getLichSuHoatDong(currentPageLS+1)">Tiếp</a>
+                      </li>
+                      <li class="page-item" [ngClass]="{disabled:currentPageLS === (totalPageLS-1) || totalRowsLS ===0}">
+                        <a class="page-link" (click)="getLichSuHoatDong(totalPageLS-1)">Cuối</a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+              <table class="table table-bordered table-striped table-sm">
+                <thead>
+                  <tr>
+                    <th class="text-center">STT</th>
+                    <th class="text-center">Tên người dùng</th>
+                    <th class="text-center">Mô tả</th>
+                    <th class="text-center">Ghi chú</th>
+                    <th class="text-center">Thời gian thực hiện</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of listLichSuHoatDong">
+                    <td class="text-center">{{item.rnum}}</td>
+                    <td>{{item.tennguoidung}}</td>
+                    <td>{{item.mota}}</td>
+                    <td>{{item.ghichu}}</td>
+                    <td class="text-center">{{item.thoidiem}}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <nav>
+                <ul class="pagination" *ngIf="totalRowsLS>0">
+                  <li [ngClass]="{disabled:currentPageLS === 0 || totalRowsLS===0}">
+                    <a class="page-link" (click)="getLichSuHoatDong(0)">Đầu</a>
+                  </li>
+                  <li [ngClass]="{disabled:currentPageLS === 0 || totalRowsLS===0}" class="page-item">
+                    <a class="page-link" (click)="getLichSuHoatDong(currentPageLS-1)">Trước</a>
+                  </li>
+                  <li class="page-item active">
+                    <a class="page-link">{{currentPageLS+1}}/{{totalPageLS}}</a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled:currentPageLS === (totalPageLS-1) || totalRowsLS===0}">
+                    <a class="page-link" (click)="getLichSuHoatDong(currentPageLS+1)">Tiếp</a>
+                  </li>
+                  <li class="page-item" [ngClass]="{disabled:currentPageLS === (totalPageLS-1) || totalRowsLS===0}">
+                    <a class="page-link" (click)="getLichSuHoatDong(totalPageLS-1)">Cuối</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </tab>
+        <!-- <tab heading="Messages">
+            3. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          </tab> -->
+      </tabset>
+    </div>
+    <!--/.col-->
+  </div>
+  <!--/.row-->
+</div>
+<div class="animated fadeIn">
+  <!--/.row-->
+  <div class="row">
+    <div class="col-lg-12">
+
+    </div>
+    <!--/.col-->
+  </div>
+  <!--/.row-->
+</div>
+<ng-template #suatemplate>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">{{titleModal}}</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form name="form" (ngSubmit)="f.form.valid && save()" #f="ngForm" novalidate>
+      <div class="row">
+        <div class="form-group col-lg-6">
+          <label>Tên đăng nhập
+            <span class="text-danger">(*)</span>
+          </label>
+          <input [disabled]="isSua" name="taiKhoan" isUserName type="text" #taiKhoan="ngModel" maxlength="50" class="form-control"
+            [(ngModel)]="model.taiKhoan" placeholder="Nhập tên đăng nhập">
+          <!-- <div *ngIf="f.submitted && !taiKhoan.valid" class="invalid-feedback">Phải nhập tên đăng nhập</div> -->
+          <div *ngIf="f.submitted && taiKhoan.errors">
+            <small class="text-danger" *ngIf="taiKhoan.errors.isUserName">Tên đăng nhập không hợp lệ</small>
+          </div>
+        </div>
+        <div class="form-group col-lg-6">
+          <label>Tên người dùng
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="text" name="tenNguoiDung" #tenNguoiDung="ngModel" maxlength="50" class="form-control" [(ngModel)]="model.tenNguoiDung"
+            isRequired placeholder="Nhập tên người dùng">
+          <div *ngIf="f.submitted && tenNguoiDung.errors">
+            <small class="text-danger" *ngIf="tenNguoiDung.errors.maxlength">Tên quá dài</small>
+            <small class="text-danger" *ngIf="tenNguoiDung.errors.isRequired">Phải nhập tên</small>
+          </div>
+
+          <!-- <div *ngIf="f.submitted && matKhau.errors" class="invalid-feedback">Phải nhập tên người dùng</div> -->
+        </div>
+      </div>
+      <div *ngIf="!isSua" class="row">
+        <div class="form-group col-lg-6">
+          <label for="">Mật khẩu
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="password" class="form-control" minlength="6" name="matKhau" [(ngModel)]="model.matKhau" required validateEqual="reMatKhau"
+            maxlength="50" reverse="true" #matKhau="ngModel" placeholder="Nhập mật khẩu">
+          <small>(Mật khẩu hợp lệ bao gồm chữ hoa, chữ thường, số, ký tự đặc biệt và ít nhất 6 kí tự)</small>
+          <div *ngIf="f.submitted && matKhau.errors">
+            <small class="text-danger" *ngIf="matKhau.errors">Mật khẩu chưa đúng</small>
+            <!-- <small class="text-danger" *ngIf="email.errors.isEmail">Email chưa đúng</small> -->
+          </div>
+          <!-- <small [hidden]="matKhau.valid || (matKhau.pristine && !f.submitted)" class="text-danger">
+            Mật khẩu chưa đúng
+          </small> -->
+          <!--<pre *ngIf="password.errors" class="margin-20">{{ password.errors | json }}</pre>-->
+        </div>
+        <div class="form-grou col-lg-6">
+          <label for="">Nhập lại mật khẩu
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="password" class="form-control" name="reMatKhau" [(ngModel)]="model.reMatKhau" required validateEqual="matKhau"
+            reverse="false" #reMatKhau="ngModel" placeholder="Nhập lại mật khẩu">
+          <div *ngIf="f.submitted && reMatKhau.errors">
+            <small class="text-danger" *ngIf="reMatKhau.errors">Mật khẩu nhập lại chưa đúng</small>
+            <!-- <small class="text-danger" *ngIf="email.errors.isEmail">Email chưa đúng</small> -->
+          </div>
+          <!-- <small [hidden]="reMatKhau.valid || (reMatKhau.pristine && !f.submitted)" class="text-danger">
+            Mật khẩu không khớp
+          </small> -->
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-lg-12">
+          <label>Đơn vị
+            <span class="text-danger">(*)</span>
+          </label>
+          <select isDefaultSelect class="form-control" #donVi="ngModel" name="donVi" [(ngModel)]="model.donVi">
+            <option *ngFor="let donvi of listDonVi" [selected]="donvi.danhmucid==0" [ngValue]="donvi.danhmucid">{{donvi.tendanhmuc}}</option>
+          </select>
+          <div *ngIf="f.submitted && donVi.errors" class="invalid-feedback">
+            <small class="text-danger">Phải chọn đơn vị</small>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-md-2 col-form-label">Xem toàn bộ điểm đo</label>
+        <div class="col-md-10 col-form-label">
+          <div class="form-check form-check-inline mr-1">
+            <input class="form-check-input" type="checkbox" id="inline-checkbox1" (change)="isXemTatCaDiemDo = !isXemTatCaDiemDo" [checked]="isXemTatCaDiemDo">
+            <!-- <p-checkbox [(ngModel)]="value" value="true" binary="true"></p-checkbox> -->
+          </div>
+        </div>
+      </div>
+      <!-- <div *ngIf="!isSua" class="row">
+        <div class="form-group col-lg-12">
+          <label>Loại tài khoản</label>
+          <select class="form-control" #loaiTaiKhoan="ngModel" name="loaiTaiKhoan" [(ngModel)]="model.loaiTaiKhoan">
+            <option value="0">XEM TOÀN BỘ ĐIỂM ĐO</option>
+            <option value="1">XEM MỘT VÀI ĐIỂM ĐO</option>
+          </select>
+        </div>
+      </div> -->
+      <div class="row">
+        <div class="form-group col-lg-6">
+          <label>Email
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="email" name="email" class="form-control" #email="ngModel" [(ngModel)]="model.email" isEmail isRequired placeholder="Nhập email">
+          <div *ngIf="f.submitted && email.errors">
+            <small class="text-danger" *ngIf="email.errors.isRequired">Phải nhập email</small>
+            <small class="text-danger" *ngIf="email.errors.isEmail">Email chưa đúng</small>
+            <small class="text-danger" *ngIf="email.errors.isEmailMaxLength">Email không được nhiều hơn 100 ký tự</small>
+          </div>
+        </div>
+        <div class="form-group col-lg-6">
+          <label>Số điện thoại
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="text" name="soDienThoai" isPhone maxlength="15" #soDienThoai="ngModel" class="form-control" [(ngModel)]="model.soDienThoai"
+            required placeholder="Nhập số điện thoại">
+          <div *ngIf="f.submitted && soDienThoai.errors">
+            <small class="text-danger" *ngIf="soDienThoai.errors">Số điện thoại chưa đúng</small>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-lg-12">
+          <label>Địa chỉ</label>
+          <textarea name="diaChi" rows="3" maxlength="200" [(ngModel)]="model.diaChi" #diaChi="ngModel" class="form-control" placeholder="Địa chỉ.."></textarea>
+          <div *ngIf="f.submitted && diaChi.errors">
+            <small class="text-danger" *ngIf="diaChi.errors.maxlength">Địa chỉ quá dài</small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-sm btn-success">
+          <i class="fa fa-floppy-o" aria-hidden="true"></i>
+          <b>Lưu</b>
+        </button>
+        <button type="button" class="btn btn-sm btn-danger" (click)="modalRef.hide()">
+          <i class="fa fa-times" aria-hidden="true"></i>
+          <b>Hủy</b>
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+<ng-template #phanquyenchucnang>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Phân quyền chức năng</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <form name="form" (ngSubmit)="formPhanQuyen.form.valid && savePhanQuyenChucNang()" #formPhanQuyen="ngForm" novalidate>
+    <div class="modal-body">
+
+      <div class="row">
+        <div class="form group col-lg-6">
+          Tài khoản:
+          <b>{{modelPhanQuyenChucNang.taikhoan}}</b>
+        </div>
+        <div class="form group col-lg-6">
+          Số điện thoại:
+          <b>{{modelPhanQuyenChucNang.sodienthoai}}</b>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form group col-lg-6">
+          Email:
+          <b>{{modelPhanQuyenChucNang.email}}</b>
+        </div>
+        <div class="form group col-lg-6">
+          Địa chỉ:
+          <b>{{modelPhanQuyenChucNang.diachi}}</b>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-lg-4">
+          <label>Danh sách mẫu quyền</label>
+          <select class="form-control" #mauQuyen="ngModel" (change)="getChiTietQuyenByQuyen()" name="mauQuyen" [(ngModel)]="modelMauPhanQuyen.mauQuyen">
+            <option *ngFor="let quyen of listMauQuyen" [ngValue]="quyen.ma_mau_phanquyen">{{quyen.ten}}</option>
+          </select>
+        </div>
+        <div class="form-group col-lg-3" *ngIf="isShowTenMau===true">
+          <label>&nbsp;</label>
+          <input type="text" name="tenMau" #tenMau="ngModel" class="form-control" [(ngModel)]="modelMauPhanQuyen.tenMau" required placeholder="Nhập tên mẫu">
+          <div *ngIf="formPhanQuyen.submitted && tenMau.errors && isShowTenMau===true">
+            <small class="text-danger" *ngIf="tenMau.errors.required">Nhập tên mẫu</small>
+          </div>
+        </div>
+        <div class="form-group col-lg-1" *ngIf="isShowTenMau==false">
+          <label>&nbsp;</label>
+          <button class="btn" (click)="taoMauPhanQuyen()">Tạo mẫu</button>
+        </div>
+        <div class="form-group col-lg-1" *ngIf="isShowTenMau==true">
+          <label>&nbsp;</label>
+          <button class="btn" (click)="huyTaoMau()">Hủy tạo mẫu</button>
+        </div>
+      </div>
+      <div class="row">
+        <div *ngIf="isShowProgressPhanQuyen==1" class="form-group col-lg-12">
+          <p-progressBar mode="indeterminate"></p-progressBar>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form group col-lg-12">
+          <div class="card">
+            <div class="card-header">
+              <i class="fa fa-align-justify"></i> Danh sách quyền
+              <b> {{idTaiKhoanSelected}} </b>
+            </div>
+            <div class="card-body" style="overflow:scroll">
+              <table class="table table-bordered table-striped table-sm">
+                <thead>
+                  <tr>
+                    <th class="text-center">STT</th>
+                    <th class="text-center">Tên chức năng</th>
+                    <th class="text-center">Xem</th>
+                    <th class="text-center">Thêm</th>
+                    <th class="text-center">Sửa</th>
+                    <th class="text-center">Xóa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of listDanhSachQuyen;">
+                    <td class="text-center">{{item.stt}}</td>
+                    <td>{{item.tenchucnang}}</td>
+                    <td class="text-center">
+                      <input [disabled]="isDisableEdit==true" *ngIf="item.xem===1" type="checkbox" (click)="onClicked(0,item.stt,1)" checked>
+                      <input [disabled]="isDisableEdit==true" *ngIf="item.xem===0" type="checkbox" (click)="onClicked(1,item.stt,1)">
+                    </td>
+                    <td class="text-center">
+                      <input [disabled]="isDisableEdit==true" *ngIf="item.them===1" type="checkbox" (click)="onClicked(0,item.stt,2)" checked>
+                      <input [disabled]="isDisableEdit==true" *ngIf="item.them===0" type="checkbox" (click)="onClicked(1,item.stt,2)">
+                    </td>
+                    <td class="text-center">
+                      <input [disabled]="isDisableEdit==true" *ngIf="item.sua===1" type="checkbox" checked (click)="onClicked(0,item.stt,3)">
+                      <input [disabled]="isDisableEdit==true" *ngIf="item.sua===0" type="checkbox" (click)="onClicked(1,item.stt,3)">
+                    </td>
+                    <td class="text-center">
+                      <input [disabled]="isDisableEdit==true" *ngIf="item.xoa===1" type="checkbox" checked (click)="onClicked(0,item.stt,4)">
+                      <input [disabled]="isDisableEdit==true" *ngIf="item.xoa===0" type="checkbox" (click)="onClicked(1,item.stt,4)">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-sm btn-success">
+        <i class="fa fa-floppy-o" aria-hidden="true"></i>
+        <b>Lưu</b>
+      </button>
+      <button type="button" class="btn btn-sm btn-danger" (click)="modalRef.hide()">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <b>Hủy</b>
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+<ng-template #phanquyendiemdo>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Phân quyền điểm đo</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <!-- <form name="form" (ngSubmit)="formPhanQuyen.form.valid && savePhanQuyenChucNang()" #formPhanQuyen="ngForm" novalidate> -->
+  <div class="modal-body">
+    <div class="card">
+      <div class="card-header">
+        <i class="fa fa-align-justify"></i> Danh sách điểm đo phân quyền - có tất cả {{totalRowsDD}} kết quả
+      </div>
+      <div class="card-body" style="overflow:scroll">
+        <div class="row">
+          <div class="col-lg-3">
+            <select class="form-control" (change)="getDanhSachDiemDoPhanQuyen(0)" [(ngModel)]="numRecsDD">
+              <option value="20">Hiển thị 20 bản ghi/trang</option>
+              <option value="50">Hiển thị 50 bản ghi/trang</option>
+              <option value="100">Hiển thị 100 bản ghi/trang</option>
+              <option value="200">Hiển thị 200 bản ghi/trang</option>
+              <option value="500">Hiển thị 500 bản ghi/trang</option>
+            </select>
+          </div>
+          <div class="col-lg-9">
+            <nav>
+              <ul class="pagination" *ngIf="totalRowsDD>0">
+                <li [ngClass]="{disabled:currentPageDD === 0 || totalRowsDD ===0}">
+                  <a class="page-link" (click)="getDanhSachDiemDoPhanQuyen(0)">Đầu</a>
+                </li>
+                <li [ngClass]="{disabled:currentPageDD === 0 || totalRowsDD ===0}" class="page-item">
+                  <a class="page-link" (click)="getDanhSachDiemDoPhanQuyen(currentPageDD-1)">Trước</a>
+                </li>
+                <li class="page-item active">
+                  <a class="page-link">{{currentPageDD+1}}/{{totalPageDD}}</a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled:currentPageDD === (totalPageDD-1) || totalRowsDD ===0}">
+                  <a class="page-link" (click)="getDanhSachDiemDoPhanQuyen(currentPageDD+1)">Tiếp</a>
+                </li>
+                <li class="page-item" [ngClass]="{disabled:currentPageDD === (totalPageDD-1) || totalRowsDD ===0}">
+                  <a class="page-link" (click)="getDanhSachDiemDoPhanQuyen(totalPageDD-1)">Cuối</a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+        <div class="row">
+          <div *ngIf="isShowProgressPhanQuyenDiemDo==1" class="form-group col-lg-12">
+            <p-progressBar mode="indeterminate"></p-progressBar>
+          </div>
+        </div>
+        <table class="table table-bordered table-striped table-sm">
+          <thead>
+            <tr>
+              <th class="text-center">STT</th>
+              <th class="text-center">Mã điểm đo</th>
+              <th class="text-center">Tên khách hàng</th>
+              <th class="text-center">Số công tơ</th>
+              <th class="text-center">Số IMEI</th>
+              <th class="text-center">Phân quyền</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of listDSQuyenDiemDo;">
+              <td class="text-center">{{item.rnum}}</td>
+              <td>{{item.madiemdo}}</td>
+              <td>{{item.tenkhachhang}}</td>
+              <td>{{item.socongto}}</td>
+              <td>{{item.soimei}}</td>
+              <td class="text-center">
+                <input type="checkbox" (change)="changePhanQuyen(item.rnum,item.meterid,item.phanquyen)" [checked]="item.phanquyen===1">
+                <!-- <input [disabled]="isDisableEdit==true" *ngIf="item.xoa===1" type="checkbox" checked (click)="onClicked(0,item.stt,4)">
+                        <input [disabled]="isDisableEdit==true" *ngIf="item.xoa===0" type="checkbox" (click)="onClicked(1,item.stt,4)"> -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <nav>
+          <ul class="pagination" *ngIf="totalRowsDD>0">
+            <li [ngClass]="{disabled:currentPageDD === 0 || totalRowsDD===0}">
+              <a class="page-link" (click)="getDanhSachDiemDoPhanQuyen(0)">Đầu</a>
+            </li>
+            <li [ngClass]="{disabled:currentPageDD === 0 || totalRowsDD===0}" class="page-item">
+              <a class="page-link" (click)="getDanhSachDiemDoPhanQuyen(currentPageDD-1)">Trước</a>
+            </li>
+            <li class="page-item active">
+              <a class="page-link">{{currentPageDD+1}}/{{totalPageDD}}</a>
+            </li>
+            <li class="page-item" [ngClass]="{disabled:currentPageDD === (totalPageDD-1) || totalRowsDD===0}">
+              <a class="page-link" (click)="getDanhSachDiemDoPhanQuyen(currentPageDD+1)">Tiếp</a>
+            </li>
+            <li class="page-item" [ngClass]="{disabled:currentPageDD === (totalPageDD-1) || totalRowsDD===0}">
+              <a class="page-link" (click)="getDanhSachDiemDoPhanQuyen(totalPageDD-1)">Cuối</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-sm btn-success" (click)="savePhanQuyenDiemDo()">
+      <i class="fa fa-floppy-o" aria-hidden="true"></i>
+      <b>Lưu</b>
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" (click)="modalRef.hide()">
+      <i class="fa fa-times" aria-hidden="true"></i>
+      <b>Hủy</b>
+    </button>
+  </div>
+  <!-- </form> -->
+</ng-template>

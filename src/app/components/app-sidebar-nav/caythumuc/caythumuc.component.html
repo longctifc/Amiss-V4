@@ -1,0 +1,13 @@
+<li class="navitem">
+    <a class="nav-link nav-dropdown-toggle main-header">{{dltong}}</a>
+</li>
+<li class="navitem" style="margin:10px">
+   
+    <jqxComboBox (onChange)='cboCtydlSelect($event)' #cboCtydl [auto-create]='false'></jqxComboBox>
+</li>
+<li class="navitem" style="margin:10px">
+    <jqxDropDownButton #dropDownTram [auto-create]='true'>
+        <jqxTree #treeDienLucTram (onSelect)="treeOnSelect($event)" [auto-create]='false'>
+        </jqxTree>
+    </jqxDropDownButton>
+</li>

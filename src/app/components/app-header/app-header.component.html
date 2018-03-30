@@ -1,0 +1,346 @@
+<header class="app-header navbar">
+  <button class="navbar-toggler d-lg-none" type="button" appMobileSidebarToggler>
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="/dashboard"></a>
+  <button class="navbar-toggler d-md-down-none" type="button" appSidebarToggler>
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="navbar-toggler">
+    <div class="col-lg-12">
+      <input type="text" placeholder="Search..." class="form-control">
+    </div>
+  </div>
+  <!-- <ul class="nav navbar-nav d-md-down-none">
+    <li class="nav-item px-3">
+      <a class="nav-link" href="#">Dashboard</a>
+    </li>
+    <li class="nav-item px-3">
+      <a class="nav-link" href="#">Users</a>
+    </li>
+    <li class="nav-item px-3">
+      <a class="nav-link" href="#">Settings</a>
+    </li>
+  </ul> -->
+  <ul class="nav navbar-nav ml-auto">
+    <li class="nav-item d-md-down-none">
+      <a class="nav-link" href="#">
+        <i class="icon-bell"></i>
+        <span class="badge badge-pill badge-danger">5</span>
+      </a>
+    </li>
+    <!-- <li class="nav-item d-md-down-none">
+      <a class="nav-link" href="#">
+        <i class="icon-list"></i>
+      </a>
+    </li>
+    <li class="nav-item d-md-down-none">
+      <a class="nav-link" href="#">
+        <i class="icon-location-pin"></i>
+      </a>
+    </li> -->
+    <li class="nav-item dropdown" dropdown placement="bottom right">
+      <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle
+        (click)="false">
+        <img src="assets/img/avatars/avatar.jpg" class="img-avatar" alt="admin@bootstrapmaster.com" />
+      </a>
+      <div class="dropdown-menu dropdown-menu-right" *dropdownMenu aria-labelledby="simple-dropdown">
+        <div class="dropdown-header text-center">
+          Tài khoản
+          <strong> {{tennguoidung}}</strong>
+        </div>
+        <a class="dropdown-item" (click)="openModalLichSuHoatDong(lichsuhoatdong)">
+          <i class="fa fa-bell-o"></i> Xem lịch sử hoạt động
+        </a>
+        <!-- <a class="dropdown-item" href="#"><i class="fa fa-envelope-o"></i> Messages<span class="badge badge-success">42</span></a>
+        <a class="dropdown-item" href="#"><i class="fa fa-tasks"></i> Tasks<span class="badge badge-danger">42</span></a>
+        <a class="dropdown-item" href="#"><i class="fa fa-comments"></i> Comment<span class="badge badge-warning">42</span></a> -->
+        <div class="dropdown-header text-center">
+          <strong>Cài đặt</strong>
+        </div>
+        <a class="dropdown-item" (click)="openModalThongTinTaiKhoan(thongtintaikhoan)">
+          <i class="fa fa-user"></i> Thông tin tài khoản</a>
+        <a class="dropdown-item" (click)="doiMatKhau(doimatkhau)">
+          <i class="fa fa-wrench"></i> Đổi mật khẩu</a>
+        <!-- <a class="dropdown-item" href="#"><i class="fa fa-usd"></i> Payments<span class="badge badge-dark">42</span></a>
+        <a class="dropdown-item" href="#"><i class="fa fa-file"></i> Projects<span class="badge badge-primary">42</span></a> -->
+        <!-- <div class="divider"></div> -->
+        <!-- <a class="dropdown-item" href="#"><i class="fa fa-shield"></i> Lock account</a> -->
+        <a class="dropdown-item" (click)="logOut()">
+          <i class="fa fa-lock"></i> Đăng xuất</a>
+      </div>
+    </li>
+    <button class="navbar-toggler d-md-down-none" type="button" appAsideMenuToggler>
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </ul>
+</header>
+
+<ng-template #doimatkhau>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Đổi mật khẩu</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form name="form" (ngSubmit)="f.form.valid && save()" #f="ngForm" novalidate>
+      <div class="row">
+        <div class="form-group col-lg-12">
+          <label for="">Mật khẩu cũ
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="password" class="form-control" minlength="6" name="matKhauCu" [(ngModel)]="model.matKhauCu" required maxlength="50"
+            #matKhauCu="ngModel" placeholder="Nhập mật khẩu cũ">
+          <div *ngIf="f.submitted && matKhauCu.errors">
+            <small class="text-danger" *ngIf="matKhauCu.errors.required">Phải nhập mật khẩu</small>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-lg-12">
+          <label for="">Mật khẩu mới
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="password" class="form-control" name="matKhau" [(ngModel)]="model.matKhau" required validEqual="reMatKhau" maxlength="50"
+            reverse="true" #matKhau="ngModel" placeholder="Nhập mật khẩu mới">
+            <small>(Mật khẩu hợp lệ bao gồm chữ hoa, chữ thường, số, ký tự đặc biệt và ít nhất 6 kí tự)</small>
+          <div *ngIf="f.submitted && matKhau.errors">
+            <small class="text-danger" *ngIf="matKhau.errors">Mật khẩu chưa đúng</small>
+            <!-- <small class="text-danger" *ngIf="email.errors.isEmail">Email chưa đúng</small> -->
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-grou col-lg-12">
+          <label for="">Nhập lại mật khẩu mới
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="password" class="form-control" name="reMatKhau" [(ngModel)]="model.reMatKhau" required validEqual="matKhau"
+            reverse="false" #reMatKhau="ngModel" placeholder="Nhập lại mật khẩu mới">
+          <div *ngIf="f.submitted && reMatKhau.errors">
+            <small class="text-danger" *ngIf="reMatKhau.errors">Mật khẩu nhập lại chưa đúng</small>
+            <!-- <small class="text-danger" *ngIf="email.errors.isEmail">Email chưa đúng</small> -->
+          </div>
+          <!-- <small [hidden]="reMatKhau.valid || (reMatKhau.pristine && !f.submitted)" class="text-danger">
+            Mật khẩu không khớp
+          </small>
+          <pre *ngIf="confirmPassword.errors" class="margin-20">{{ confirmPassword.errors | json }}</pre> -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-sm btn-success">
+          <i class="fa fa-floppy-o" aria-hidden="true"></i>
+          <b>Lưu</b>
+        </button>
+        <button type="button" class="btn btn-sm btn-danger" (click)="modalRef.hide()">
+          <i class="fa fa-times" aria-hidden="true"></i>
+          <b>Hủy</b>
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+<ng-template #lichsuhoatdong>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Lịch sử hoạt động</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="form-group col-lg-3">
+        <label>Ngày bắt đầu</label>
+        <p-calendar [(ngModel)]="modelLichSuHoatDong.ngayBatDau" dateFormat="dd/mm/yy"></p-calendar>
+      </div>
+      <div class="form-group col-lg-3">
+        <label>Ngày kết thúc</label>
+        <p-calendar [(ngModel)]="modelLichSuHoatDong.ngayKetThuc" dateFormat="dd/mm/yy"></p-calendar>
+      </div>
+      <div class="form-group col-lg-3">
+        <label>Loại Log</label>
+        <select class="form-control" #loaiLog="ngModel" name="loaiLog" [(ngModel)]="modelLichSuHoatDong.loaiLog">
+          <option *ngFor="let sukien of listAllSuKien" [selected]="sukien.loaisukien==-1" [ngValue]="sukien.loaisukien">{{sukien.tenhienthi}}</option>
+        </select>
+      </div>
+      <div class="form-group col-lg-2">
+        <label>&nbsp;</label>
+        <button type="button" (click)="getLichSuHoatDong(0)" class="form-control btn btn-success">Xem</button>
+      </div>
+    </div>
+    <div class="row">
+      <div *ngIf="isShowProgress==1" class="form-group col-lg-12">
+        <p-progressBar mode="indeterminate"></p-progressBar>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group col-lg-12">
+        <p-messages [(value)]="msgs"></p-messages>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3">
+        <select class="form-control" (change)="getLichSuHoatDong(0)" [(ngModel)]="numRecs">
+          <option value="20">Hiển thị 20 bản ghi/trang</option>
+          <option value="50">Hiển thị 50 bản ghi/trang</option>
+          <option value="100">Hiển thị 100 bản ghi/trang</option>
+          <option value="200">Hiển thị 200 bản ghi/trang</option>
+          <option value="500">Hiển thị 500 bản ghi/trang</option>
+        </select>
+      </div>
+      <div class="col-lg-9">
+        <nav>
+          <ul class="pagination" *ngIf="totalRows>0">
+            <li [ngClass]="{disabled:currentPage === 0 || totalRows===0}">
+              <a class="page-link" (click)="getLichSuHoatDong(0)">Đầu</a>
+            </li>
+            <li [ngClass]="{disabled:currentPage === 0 || totalRows===0}" class="page-item">
+              <a class="page-link" (click)="getLichSuHoatDong(currentPage-1)">Trước</a>
+            </li>
+            <li class="page-item active">
+              <a class="page-link">{{currentPage+1}}/{{totalPage}}</a>
+            </li>
+            <li class="page-item" [ngClass]="{disabled:currentPage === (totalPage-1) || totalRows===0}">
+              <a class="page-link" (click)="getLichSuHoatDong(currentPage+1)">Tiếp</a>
+            </li>
+            <li class="page-item" [ngClass]="{disabled:currentPage === (totalPage-1) || totalRows===0}">
+              <a class="page-link" (click)="getLichSuHoatDong(totalPage-1)">Cuối</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <i class="fa fa-align-justify"></i> Danh sách lịch sử hoạt động - Có tất cả {{totalRows}} kết quả
+      </div>
+      <div class="card-body">
+        <table class="table table-bordered table-striped table-sm">
+          <thead>
+            <tr>
+              <th class="text-center">STT</th>
+              <th class="text-center">Tên người dùng</th>
+              <th class="text-center">Mô tả</th>
+              <th class="text-center">Ghi chú</th>
+              <th class="text-center">Thời gian thực hiện</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of listLichSuHoatDong">
+              <td class="text-center">{{item.rnum}}</td>
+              <td>{{item.tennguoidung}}</td>
+              <td>{{item.mota}}</td>
+              <td>{{item.ghichu}}</td>
+              <td class="text-center">{{item.thoidiem}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <nav>
+      <ul class="pagination" *ngIf="totalRows>0">
+        <li [ngClass]="{disabled:currentPage === 0  || totalRows===0}">
+          <a class="page-link" (click)="getLichSuHoatDong(0)">Đầu</a>
+        </li>
+        <li [ngClass]="{disabled:currentPage === 0  || totalRows===0}" class="page-item">
+          <a class="page-link" (click)="getLichSuHoatDong(currentPage-1)">Trước</a>
+        </li>
+        <li class="page-item active">
+          <a class="page-link">{{currentPage+1}}/{{totalPage}}</a>
+        </li>
+        <li class="page-item" [ngClass]="{disabled:currentPage === (totalPage-1) || totalRows===0}">
+          <a class="page-link" (click)="getLichSuHoatDong(currentPage+1)">Tiếp</a>
+        </li>
+        <li class="page-item" [ngClass]="{disabled:currentPage === (totalPage-1) || totalRows===0}">
+          <a class="page-link" (click)="getLichSuHoatDong(totalPage-1)">Cuối</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-sm btn-danger" (click)="modalRef.hide()">
+      <i class="fa fa-times" aria-hidden="true"></i>
+      <b>Đóng</b>
+    </button>
+  </div>
+</ng-template>
+<ng-template #thongtintaikhoan>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Thông tin tài khoản</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form name="form" (ngSubmit)="f.form.valid && saveThongTinTaiKhoan()" #f="ngForm" novalidate>
+      <div class="row">
+          <div class="form-group col-lg-6">
+              <label>Tài khoản
+                <span class="text-danger">(*)</span>
+              </label>
+              <input type="text" name="taiKhoan" #taiKhoan="ngModel" maxlength="50" class="form-control" [(ngModel)]="modelTaiKhoan.taiKhoan"
+                disabled >
+              <!-- <div *ngIf="f.submitted && matKhau.errors" class="invalid-feedback">Phải nhập tên người dùng</div> -->
+            </div>
+        <div class="form-group col-lg-6">
+          <label>Tên người dùng
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="text" name="tenNguoiDung" #tenNguoiDung="ngModel" maxlength="50" class="form-control" [(ngModel)]="modelTaiKhoan.tenNguoiDung"
+          isRequired placeholder="Nhập tên người dùng">
+          <div *ngIf="f.submitted && tenNguoiDung.errors">
+            <small class="text-danger" *ngIf="tenNguoiDung.errors.maxlength">Tên quá dài</small>
+            <small class="text-danger" *ngIf="tenNguoiDung.errors.isRequired">Phải nhập tên</small>
+          </div>
+          <!-- <div *ngIf="f.submitted && matKhau.errors" class="invalid-feedback">Phải nhập tên người dùng</div> -->
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-lg-6">
+          <label>Email
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="email" name="email" class="form-control" #email="ngModel" [(ngModel)]="modelTaiKhoan.email" isEmail isRequired
+            placeholder="Nhập email">
+          <div *ngIf="f.submitted && email.errors">
+            <small class="text-danger" *ngIf="email.errors.isRequired">Phải nhập email</small>
+            <small class="text-danger" *ngIf="email.errors.isEmail">Email chưa đúng</small>
+            <small class="text-danger" *ngIf="email.errors.isEmailMaxLength">Email không được nhiều hơn 100 ký tự</small>
+          </div>
+        </div>
+        <div class="form-group col-lg-6">
+          <label>Số điện thoại
+            <span class="text-danger">(*)</span>
+          </label>
+          <input type="text" name="soDienThoai" isPhone maxlength="15" #soDienThoai="ngModel" class="form-control" [(ngModel)]="modelTaiKhoan.soDienThoai"
+          isRequired placeholder="Nhập số điện thoại">
+          <div *ngIf="f.submitted && soDienThoai.errors">
+            <small class="text-danger" *ngIf="soDienThoai.errors">Số điện thoại chưa đúng</small>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="form-group col-lg-12">
+          <label>Địa chỉ
+          </label>
+          <textarea name="diaChi" rows="3" maxlength="200" [(ngModel)]="modelTaiKhoan.diaChi" #diaChi="ngModel" class="form-control"
+            placeholder="Địa chỉ.."></textarea>
+          <div *ngIf="f.submitted && diaChi.errors">
+            <small class="text-danger" *ngIf="diaChi.errors.maxlength">Địa chỉ quá dài</small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-sm btn-success">
+          <i class="fa fa-floppy-o" aria-hidden="true"></i>
+          <b>Lưu</b>
+        </button>
+        <button type="button" class="btn btn-sm btn-danger" (click)="modalRef.hide()">
+          <i class="fa fa-times" aria-hidden="true"></i>
+          <b>Hủy</b>
+        </button>
+      </div>
+    </form>
+  </div>
+</ng-template>
